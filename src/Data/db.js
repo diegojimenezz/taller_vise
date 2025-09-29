@@ -2,7 +2,7 @@
 // Campos esperados por el servicio: { name, country, monthlyIncome, viseClub, cardType }
 const initialSeed = [
   {
-    clientId: 1,
+    clientId:1,
     name: "Ana Gomez",
     country: "Colombia",
     monthlyIncome: 300,

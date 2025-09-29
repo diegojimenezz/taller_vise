@@ -3,6 +3,7 @@ const calculateDiscount = (purchase, client) => {
   const { cardType, country: clientCountry } = client;
   const dayOfWeek = new Date(date).getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
+
   let rate = 0;
   let reason = '';
 
@@ -10,17 +11,20 @@ const calculateDiscount = (purchase, client) => {
     case "Classic":
       rate = 0;
       reason = '';
+
       break;
 
     case "Gold":
       if ([1, 2, 3].includes(dayOfWeek) && amount > 100) {
         rate = 0.15;
         reason = 'Lun-Mié-Vie';
+
       }
       break;
 
     case "Platinum":
       if ([1, 2, 3].includes(dayOfWeek) && amount > 100) {
+
         rate = 0.20;
         reason = 'Lun-Mié-Vie';
       } else if (dayOfWeek === 6 && amount > 200) {

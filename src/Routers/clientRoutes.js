@@ -11,4 +11,5 @@ router.post("/purchase", purchaseController.createPurchase);
 router.get('/purchases', purchaseController.getAllPurchases);
 router.get('/purchases/client/:clientId', purchaseController.getPurchasesByClient);
 
+
 module.exports = router;

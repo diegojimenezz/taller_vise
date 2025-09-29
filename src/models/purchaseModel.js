@@ -38,6 +38,7 @@ const purchaseSchema = new mongoose.Schema({
   benefit: {
     type: String,
     default: null
+
   }
 });
 

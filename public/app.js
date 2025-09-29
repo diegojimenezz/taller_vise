@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('purchaseDate').value = today;
 
+
   async function fetchClients() {
     statusDiv.textContent = 'Cargando clientes...';
     clientsDiv.innerHTML = '';
@@ -34,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-          <div><strong>clientId:</strong> ${c.clientId}</div>
+          <div><strong>clientId:</strong>${c.clientId}</div>
           <div><strong>name:</strong> ${c.name}</div>
           <div><strong>cardType:</strong> ${c.cardType}</div>
           <div><strong>status:</strong> ${c.status || 'Registered'}</div>
@@ -92,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
       purchaseStatusDiv.textContent = 'Error: ' + err.message;
     }
   }
+
 
   async function fetchPurchases() {
     purchasesStatusDiv.textContent = 'Cargando compras...';
@@ -175,3 +177,4 @@ document.addEventListener('DOMContentLoaded', () => {
   btnLoadPurchases.addEventListener('click', fetchPurchases);
   btnSearchPurchases.addEventListener('click', fetchPurchasesByClient);
 });
+

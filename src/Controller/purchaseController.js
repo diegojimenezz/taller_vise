@@ -2,12 +2,14 @@ const clientService = require("../Services/clientService.js");
 const calculateDiscount = require("../utils/discountUtils.js");
 const Purchase = require("../models/purchaseModel.js");
 
+
 const db = require("../Data/db.js");
 
 exports.createPurchase = async (req, res) => {
   const { clientId, amount, currency, purchaseDate, purchaseCountry } = req.body;
 
   console.log("Client ID received:", clientId);
+
   try {
     const allClients = await clientService.getAll();
     console.log("Clients in database:", allClients);
@@ -16,6 +18,7 @@ exports.createPurchase = async (req, res) => {
   }
 
   const client = await clientService.getById(clientId);
+
   if (!client) {
     return res.status(404).json({ status: "Rejected", error: "Cliente no encontrado" });
   }
@@ -24,6 +27,7 @@ exports.createPurchase = async (req, res) => {
   if (!validation.valid) {
     return res.status(400).json({ status: "Rejected", error: validation.error });
   }
+
 
   const discountInfo = calculateDiscount({ amount, date: purchaseDate, country: purchaseCountry }, client);
   const discount = Number(amount) * (discountInfo.rate || 0);
