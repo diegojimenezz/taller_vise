@@ -1,4 +1,10 @@
 const db = require("../Data/db.js");
+let ClientModel;
+try {
+  ClientModel = require("../models/clientModel.js");
+} catch (e) {
+  ClientModel = null;
+}
 
 function validateRestrictions(client) {
   const { country, monthlyIncome, viseClub, cardType } = client;
@@ -31,10 +37,34 @@ function validateRestrictions(client) {
   }
 }
 
-exports.register = (client) => {
+exports.register = async (client) => {
   const validation = validateRestrictions(client);
   if (!validation.valid) return { valid: false, error: validation.error };
 
+  if (ClientModel && ClientModel.db && ClientModel.db.readyState === 1) {
+    // Save to MongoDB
+    // Usar el siguiente ID disponible si no se proporciona clientId
+    const clientId = client.clientId || db.nextClientId++;
+    
+    const doc = new ClientModel({
+      ...client,
+      clientId: clientId
+    });
+    
+    const saved = await doc.save();
+    return {
+      valid: true,
+      data: {
+        clientId: saved.clientId,
+        name: saved.name,
+        cardType: saved.cardType,
+        status: "Registered",
+        message: `Cliente apto para tarjeta ${saved.cardType}`
+      }
+    };
+  }
+
+  // Fallback in-memory
   const newClient = {
     clientId: db.nextClientId++,
     ...client
@@ -53,5 +83,27 @@ exports.register = (client) => {
   };
 };
 
-exports.getAll = () => db.clients;
-exports.getById = (id) => db.clients.find(c => c.clientId === id);
+exports.getAll = async () => {
+  if (ClientModel && ClientModel.db && ClientModel.db.readyState === 1) {
+    const docs = await ClientModel.find().lean();
+    return docs.map(d => ({ ...d, clientId: d.clientId }));
+  }
+  // map in-memory clients to ensure clientId is string
+  return db.clients.map(c => ({ ...c, clientId: c.clientId }));
+};
+
+exports.getById = async (id) => {
+  if (ClientModel && ClientModel.db && ClientModel.db.readyState === 1) {
+    try {
+      // Buscar por clientId numérico
+      const d = await ClientModel.findOne({ clientId: id }).lean();
+      return d ? { ...d, clientId: d.clientId } : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  // tolerant lookup: compare as strings so both numeric and string ids work
+  return db.clients.find(c => String(c.clientId) === String(id));
+};
+
+exports.validateRestrictions = validateRestrictions;

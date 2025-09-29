@@ -6,7 +6,11 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/vise
     restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
 
   app-dev:
     build:
@@ -20,5 +24,38 @@ services:
       - "3001:3000"
     environment:
       - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017/vise
     tty: true
     stdin_open: true
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  mongo:
+    image: mongo:6.0
+    container_name: taller_vise_mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: vise
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo-seed:
+    build: .
+    command: npm run seed:mongo
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/vise
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  mongo_data:
+    driver: local
