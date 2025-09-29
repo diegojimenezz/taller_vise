@@ -46,6 +46,8 @@ const initialSeed = [
 const db = {
   clients: initialSeed.map(c => ({ ...c })),
   nextClientId: Math.max(...initialSeed.map(c => c.clientId)) + 1,
+  purchases: [],
+  nextPurchaseId: 1,
   // Re-aplica el seed inicial (útil para pruebas)
   seed() {
     this.clients = initialSeed.map(c => ({ ...c }));
@@ -53,5 +55,8 @@ const db = {
     return this.clients;
   }
 };
+
+// Exponer el seed original para scripts externos (ej. seed en Mongo)
+db.initialSeed = initialSeed;
 
 module.exports = db;

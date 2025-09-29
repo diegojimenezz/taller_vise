@@ -5,3 +5,33 @@ button{padding:8px 12px;margin-right:8px;border-radius:4px;border:1px solid #bbb
 #status{margin-bottom:12px;font-weight:600}
 .card{background:#fff;border:1px solid #ddd;padding:10px;border-radius:6px;margin-bottom:8px}
 .card div{margin:4px 0}
+
+/* Form Styles */
+form {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 6px;
+  margin: 15px 0;
+}
+
+form div {
+  margin-bottom: 10px;
+}
+
+form label {
+  display: inline-block;
+  width: 120px;
+  font-weight: bold;
+}
+
+form input {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#purchaseStatus {
+  margin: 10px 0;
+  font-weight: 600;
+}

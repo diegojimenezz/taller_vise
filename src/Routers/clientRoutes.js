@@ -8,5 +8,8 @@ router.get("/clients", clientController.getAllClients);
 router.get("/seed", clientController.seedClients);
 router.get("/client/:id", clientController.getClientById);
 router.post("/purchase", purchaseController.createPurchase);
+router.get('/purchases', purchaseController.getAllPurchases);
+router.get('/purchases/client/:clientId', purchaseController.getPurchasesByClient);
+
 
 module.exports = router;

@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const purchaseSchema = new mongoose.Schema({
+  // allow flexible clientId: ObjectId when using Mongo, or numeric/string when using in-memory DB
   clientId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Client',
+    type: mongoose.Schema.Types.Mixed,
     required: true
   },
   amount: {
@@ -30,6 +30,15 @@ const purchaseSchema = new mongoose.Schema({
   finalAmount: {
     type: Number,
     required: true
+  },
+  currency: {
+    type: String,
+    default: null
+  },
+  benefit: {
+    type: String,
+    default: null
+
   }
 });
 

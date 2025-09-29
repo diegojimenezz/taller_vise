@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+
 
 const path = require('path');
 const clientRoutes = require("./src/Routers/clientRoutes");
@@ -53,16 +54,41 @@ app.get('/_debug', (req, res) => {
 // Rutas API
 app.use(clientRoutes);
 app.use((req, res, next) => {
-	if (req.method !== 'GET') return next();
-	if (!req.accepts || !req.accepts('html')) return next();
+  // Only serve the SPA index.html for non-API GET requests that accept HTML.
+  if (req.method !== 'GET') return next();
 
-	// Aplicar header CSP relajado para la UI (solo en desarrollo)
-	try {
-		res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' http://localhost:3000 http://127.0.0.1:3000; connect-src 'self' http://localhost:3000 ws://localhost:3000");
-	} catch (e) {}
+  // Skip known API prefixes so API routes (e.g. /purchases) return JSON
+  const apiPrefixes = ['/api', '/clients', '/client', '/purchase', '/purchases', '/seed', '/_debug'];
+  for (const p of apiPrefixes) {
+    if (req.path === p || req.path.startsWith(p + '/')) return next();
+  }
 
-	return res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  // If the client doesn't accept HTML, don't serve the index
+  if (!req.accepts || !req.accepts('html')) return next();
+
+  // Aplicar header CSP relajado para la UI (solo en desarrollo)
+  try {
+    res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' http://localhost:3000 http://127.0.0.1:3000; connect-src 'self' http://localhost:3000 ws://localhost:3000");
+  } catch (e) {}
+
+  return res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = 3000;
-app.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:${PORT}`));
+// Conexión a MongoDB si está disponible en MONGODB_URI
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || null;
+if (MONGODB_URI) {
+	mongoose.connect(MONGODB_URI)
+		.then(() => {
+			console.log('MongoDB conectado');
+			app.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:${PORT}`));
+		})
+		.catch(err => {
+			console.error('Error conectando a MongoDB:', err.message);
+			// arrancar servidor aun sin Mongo
+			app.listen(PORT, () => console.log(`Servidor corriendo (sin Mongo) en http://localhost:${PORT}`));
+		});
+} else {
+	console.log('MONGODB_URI no proporcionado, usando DB en memoria');
+	app.listen(PORT, () => console.log(`Servidor corriendo (sin Mongo) en http://localhost:${PORT}`));
+}
