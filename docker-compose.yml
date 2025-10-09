@@ -3,7 +3,7 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      - "443:443"
     environment:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://mongo:27017/vise
@@ -21,7 +21,7 @@ services:
       - ./:/app:rw
       - /app/node_modules
     ports:
-      - "3001:3000"
+      - "444:443"
     environment:
       - NODE_ENV=development
       - MONGODB_URI=mongodb://mongo:27017/vise

@@ -18,7 +18,7 @@ COPY . .
 ENV NODE_ENV=production
 
 # Puerto que expone la app
-EXPOSE 3000
+EXPOSE 443
 
 # Comando por defecto
 CMD ["node", "index.js"]

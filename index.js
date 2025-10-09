@@ -16,7 +16,7 @@ app.use((req, res, next) => {
 	res.writeHead = function(statusCode, reasonPhrase, headers) {
 		try {
 			// aplicamos una política relajada para desarrollo
-			res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' http://localhost:3000 http://127.0.0.1:3000; connect-src 'self' http://localhost:3000 ws://localhost:3000");
+			res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' http://localhost:443 http://127.0.0.1:443; connect-src 'self' http://localhost:443 ws://localhost:443");
 		} catch (e) {
 			// ignore
 		}
@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 // Sobre-escribir/relajar Content Security Policy para desarrollo local (evita default-src 'none')
 app.use((req, res, next) => {
 	// Permitir recursos desde self y localhost para las pruebas locales
-	res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' http://localhost:3000 http://127.0.0.1:3000; connect-src 'self' http://localhost:3000 ws://localhost:3000");
+	res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' http://localhost:443 http://127.0.0.1:443; connect-src 'self' http://localhost:443 ws://localhost:443");
 	next();
 });
 
@@ -68,13 +68,13 @@ app.use((req, res, next) => {
 
   // Aplicar header CSP relajado para la UI (solo en desarrollo)
   try {
-    res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' http://localhost:3000 http://127.0.0.1:3000; connect-src 'self' http://localhost:3000 ws://localhost:3000");
+    res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' http://localhost:443 http://127.0.0.1:443; connect-src 'self' http://localhost:443 ws://localhost:443");
   } catch (e) {}
 
   return res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const PORT = 3000;
+const PORT = 443;
 // Conexión a MongoDB si está disponible en MONGODB_URI
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || null;
 if (MONGODB_URI) {
