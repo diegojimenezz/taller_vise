@@ -1,37 +1,270 @@
-body{font-family:Arial,Helvetica,sans-serif;background:#f6f8fa;color:#222;padding:20px}
-main{max-width:900px;margin:0 auto}
-.controls{margin-bottom:12px}
-button{padding:8px 12px;margin-right:8px;border-radius:4px;border:1px solid #bbb;background:#fff;cursor:pointer}
-#status{margin-bottom:12px;font-weight:600}
-.card{background:#fff;border:1px solid #ddd;padding:10px;border-radius:6px;margin-bottom:8px}
-.card div{margin:4px 0}
+/* Variables CSS para colores y espaciados consistentes */
+:root {
+  --primary-color: #4361ee;
+  --secondary-color: #3f37c9;
+  --success-color: #4cc9f0;
+  --warning-color: #f72585;
+  --danger-color: #e63946;
+  --light-color: #f8f9fa;
+  --dark-color: #212529;
+  --border-color: #dee2e6;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
 
-/* Form Styles */
-form {
-  background: #fff;
-  border: 1px solid #ddd;
-  padding: 15px;
+/* Estilos generales */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: var(--dark-color);
+  padding: 20px;
+  margin: 0;
+  line-height: 1.6;
+  font-size: 18px; /* Aumentar tamaño de texto general */
+}
+
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header h1 {
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: 30px;
+  font-size: 2.5rem;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Layout principal */
+.content-layout {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+/* Secciones */
+.controls-section, .form-section, .data-section {
+  background: white;
+  border-radius: 10px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: var(--shadow);
+}
+
+.data-section, .form-section {
+  flex: 1;
+}
+
+.data-section h2, .form-section h2 {
+  color: var(--secondary-color);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 10px;
+  margin-top: 0;
+  font-size: 1.8rem; /* Aumentar tamaño de encabezados */
+}
+
+/* Controles */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Botones */
+button {
+  padding: 10px 16px;
+  margin: 5px;
   border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+  font-size: 16px; /* Aumentar tamaño de texto en botones */
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #38b6ff;
+  transform: translateY(-2px);
+}
+
+/* Formularios */
+form {
+  background: var(--light-color);
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  border-radius: 8px;
   margin: 15px 0;
 }
 
-form div {
-  margin-bottom: 10px;
+.form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
-form label {
-  display: inline-block;
-  width: 120px;
+.form-group label {
   font-weight: bold;
+  margin-bottom: 8px;
+  color: var(--dark-color);
+  font-size: 18px; /* Aumentar tamaño de etiquetas */
 }
 
-form input {
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.form-group input, .form-group select {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 16px;
+  transition: var(--transition);
 }
 
-#purchaseStatus {
-  margin: 10px 0;
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+.btn-submit {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 12px 20px;
+  font-size: 16px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.btn-submit:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+/* Mensajes de estado */
+.status-message {
+  padding: 12px;
+  border-radius: 6px;
+  margin: 15px 0;
   font-weight: 600;
+  text-align: center;
+  transition: var(--transition);
+  font-size: 18px; /* Aumentar tamaño de mensajes */
+}
+
+.status-message.success {
+  background-color: rgba(76, 201, 240, 0.2);
+  border: 1px solid var(--success-color);
+  color: #0d6efd;
+}
+
+.status-message.error {
+  background-color: rgba(230, 57, 70, 0.2);
+  border: 1px solid var(--danger-color);
+  color: var(--danger-color);
+}
+
+.status-message.info {
+  background-color: rgba(67, 97, 238, 0.2);
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* Mensaje de no hay compras */
+.no-purchases-message {
+  text-align: center;
+  padding: 40px;
+  font-size: 20px;
+  color: var(--dark-color);
+  font-style: italic;
+}
+
+/* Tarjetas */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Reducir tamaño mínimo de tarjetas */
+  gap: 15px; /* Reducir espacio entre tarjetas */
+  margin-top: 20px;
+}
+
+.card {
+  background: white;
+  border: 1px solid var(--border-color);
+  padding: 15px; /* Reducir padding */
+  border-radius: 8px;
+  margin-bottom: 10px; /* Reducir margen inferior */
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card div {
+  margin: 6px 0; /* Reducir margen entre líneas */
+  padding: 3px 0; /* Reducir padding */
+  border-bottom: 1px dashed #eee;
+  font-size: 16px; /* Ajustar tamaño de texto en tarjetas */
+}
+
+.card div:last-child {
+  border-bottom: none;
+}
+
+.card strong {
+  color: var(--primary-color);
+  margin-right: 5px;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  main {
+    padding: 10px;
+  }
+  
+  header h1 {
+    font-size: 2rem;
+  }
+  
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+  
+  /* En móviles, mostrar clientes y formulario en columnas */
+  .content-layout {
+    flex-direction: column;
+  }
 }

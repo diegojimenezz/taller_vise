@@ -8,67 +8,100 @@
 </head>
 <body>
   <main>
-    <h1>Clientes VISE - Pruebas</h1>
-    <div class="controls">
-      <button id="btnLoad">Mostrar Clientes</button>
-      <button id="btnSeed">Re-seed datos (reset)</button>
-      <button id="btnLoadPurchases">Mostrar Compras</button>
-      <input type="number" id="searchClientId" placeholder="ID cliente para compras" style="width:180px" />
-      <button id="btnSearchPurchases">Buscar compras por cliente</button>
+    <header>
+      <h1>Clientes VISE - Sistema de Compras</h1>
+    </header>
+    
+    <section class="controls-section">
+      <div class="controls">
+        <button id="btnLoad" class="btn-primary">Mostrar Clientes</button>
+        <button id="btnLoadPurchases" class="btn-primary">Mostrar Compras</button>
+        <button id="btnShowCreateClient" class="btn-secondary">Crear Cliente</button>
+      </div>
+      <div id="status" class="status-message"></div>
+    </section>
+    
+    <!-- Contenido principal que se ocultará al mostrar compras -->
+    <div id="mainContent" class="content-layout">
+      <section id="clients-section" class="data-section">
+        <h2>Clientes Registrados</h2>
+        <div id="clients" class="cards-container"></div>
+      </section>
+      
+      <section id="purchase-section" class="form-section">
+        <h2>Realizar Compra</h2>
+        <form id="purchaseForm">
+          <div class="form-group">
+            <label for="clientId">ID Cliente:</label>
+            <input type="number" id="clientId" required />
+          </div>
+          <div class="form-group">
+            <label for="amount">Monto:</label>
+            <input type="number" id="amount" step="0.01" required />
+          </div>
+          <div class="form-group">
+            <label for="currency">Moneda:</label>
+            <input type="text" id="currency" value="USD" required />
+          </div>
+          <div class="form-group">
+            <label for="purchaseDate">Fecha:</label>
+            <input type="date" id="purchaseDate" required />
+          </div>
+          <div class="form-group">
+            <label for="purchaseCountry">País:</label>
+            <input type="text" id="purchaseCountry" required />
+          </div>
+          <button type="submit" class="btn-submit">Realizar Compra</button>
+        </form>
+        <div id="purchaseStatus" class="status-message"></div>
+      </section>
     </div>
-    <div id="status"></div>
-    <div id="clients"></div>
     
-    <h2>Realizar Compra</h2>
-    <form id="purchaseForm">
-      <div>
-        <label for="clientId">ID Cliente:</label>
-        <input type="number" id="clientId" required />
-      </div>
-      <div>
-        <label for="amount">Monto:</label>
-        <input type="number" id="amount" step="0.01" required />
-      </div>
-      <div>
-        <label for="currency">Moneda:</label>
-        <input type="text" id="currency" value="USD" required />
-      </div>
-      <div>
-        <label for="purchaseDate">Fecha:</label>
-        <input type="date" id="purchaseDate" required />
-      </div>
-      <div>
-        <label for="purchaseCountry">País:</label>
-        <input type="text" id="purchaseCountry" required />
-      </div>
-      <button type="submit">Realizar Compra</button>
-    </form>
-    <div id="purchaseStatus"></div>
+    <!-- Formulario para crear clientes -->
+    <section id="create-client-section" class="form-section" style="display: none;">
+      <h2>Crear Nuevo Cliente</h2>
+      <form id="createClientForm">
+        <div class="form-group">
+          <label for="clientName">Nombre:</label>
+          <input type="text" id="clientName" required />
+        </div>
+        <div class="form-group">
+          <label for="clientCountry">País:</label>
+          <input type="text" id="clientCountry" required />
+        </div>
+        <div class="form-group">
+          <label for="clientMonthlyIncome">Ingreso Mensual (USD):</label>
+          <input type="number" id="clientMonthlyIncome" step="0.01" required />
+        </div>
+        <div class="form-group">
+          <label for="clientViseClub">¿Tiene VISE CLUB?</label>
+          <select id="clientViseClub" required>
+            <option value="false">No</option>
+            <option value="true">Sí</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="clientCardType">Tipo de Tarjeta:</label>
+          <select id="clientCardType" required>
+            <option value="Classic">Classic</option>
+            <option value="Gold">Gold</option>
+            <option value="Platinum">Platinum</option>
+            <option value="Black">Black</option>
+            <option value="White">White</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-submit">Crear Cliente</button>
+      </form>
+      <div id="createClientStatus" class="status-message"></div>
+    </section>
     
-    <h2>Compras</h2>
-    <div id="purchasesStatus"></div>
-    <div id="purchases"></div>
+    <!-- Sección de historial de compras que se mostrará al hacer clic en "Mostrar Compras" -->
+    <section id="purchases-section" class="data-section" style="display: none;">
+      <h2>Historial de Compras</h2>
+      <div id="purchasesStatus" class="status-message"></div>
+      <div id="purchases" class="cards-container"></div>
+    </section>
   </main>
-  <form id="purchaseForm">
-    <h3>Realizar Compra</h3>
-    <label for="clientId">ID del Cliente:</label>
-    <input type="number" id="clientId" required />
-
-    <label for="amount">Monto:</label>
-    <input type="number" id="amount" required />
-
-    <label for="currency">Moneda:</label>
-    <input type="text" id="currency" value="USD" required />
-
-    <label for="purchaseDate">Fecha de Compra:</label>
-    <input type="datetime-local" id="purchaseDate" required />
-
-    <label for="purchaseCountry">País de Compra:</label>
-    <input type="text" id="purchaseCountry" required />
-
-    <button type="submit">Procesar Compra</button>
-  </form>
-  <div id="purchaseStatus"></div>
   <script src="/app.js"></script>
 </body>
 </html>

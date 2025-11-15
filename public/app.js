@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
   const btnLoad = document.getElementById('btnLoad');
-  const btnSeed = document.getElementById('btnSeed');
   const clientsDiv = document.getElementById('clients');
   const statusDiv = document.getElementById('status');
   const purchaseForm = document.getElementById('purchaseForm');
@@ -8,16 +7,62 @@ document.addEventListener('DOMContentLoaded', () => {
   const purchasesDiv = document.getElementById('purchases');
   const purchasesStatusDiv = document.getElementById('purchasesStatus');
   const btnLoadPurchases = document.getElementById('btnLoadPurchases');
-  const btnSearchPurchases = document.getElementById('btnSearchPurchases');
-  const searchClientIdInput = document.getElementById('searchClientId');
+  const mainContent = document.getElementById('mainContent');
+  const purchasesSection = document.getElementById('purchases-section');
+  const btnShowCreateClient = document.getElementById('btnShowCreateClient');
+  const createClientSection = document.getElementById('create-client-section');
+  const createClientForm = document.getElementById('createClientForm');
+  const createClientStatusDiv = document.getElementById('createClientStatus');
 
   // Set today's date as default for purchaseDate input
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('purchaseDate').value = today;
 
+  // Función para mostrar mensajes de estado con estilos apropiados
+  function showStatusMessage(element, message, type = 'info') {
+    element.textContent = message;
+    element.className = 'status-message ' + type;
+    
+    // Remover el mensaje después de 5 segundos para mensajes de éxito
+    if (type === 'success') {
+      setTimeout(() => {
+        element.textContent = '';
+        element.className = 'status-message';
+      }, 5000);
+    }
+  }
+
+  // Función para crear una tarjeta de cliente
+  function createClientCard(client) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div><strong>clientId:</strong> ${client.clientId}</div>
+      <div><strong>name:</strong> ${client.name}</div>
+      <div><strong>cardType:</strong> ${client.cardType}</div>
+      <div><strong>status:</strong> ${client.status || 'Registered'}</div>
+      <div><strong>message:</strong> ${client.message || 'Cliente apto para tarjeta ' + client.cardType}</div>
+    `;
+    return card;
+  }
+
+  // Función para crear una tarjeta de compra
+  function createPurchaseCard(purchase) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div><strong>purchaseId:</strong> ${purchase.purchaseId || purchase._id || ''}</div>
+      <div><strong>clientId:</strong> ${purchase.clientId}</div>
+      <div><strong>originalAmount:</strong> ${purchase.originalAmount} ${purchase.currency || ''}</div>
+      <div><strong>discountApplied:</strong> ${purchase.discountApplied}</div>
+      <div><strong>finalAmount:</strong> ${purchase.finalAmount} ${purchase.currency || ''}</div>
+      <div><strong>benefit:</strong> ${purchase.benefit || ''}</div>
+    `;
+    return card;
+  }
 
   async function fetchClients() {
-    statusDiv.textContent = 'Cargando clientes...';
+    showStatusMessage(statusDiv, 'Cargando clientes...', 'info');
     clientsDiv.innerHTML = '';
     try {
       const res = await fetch('/clients');
@@ -25,52 +70,156 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       if (!Array.isArray(data)) {
-        statusDiv.textContent = 'Respuesta inesperada';
+        showStatusMessage(statusDiv, 'Respuesta inesperada', 'error');
         return;
       }
 
-      statusDiv.textContent = `Clientes cargados: ${data.length}`;
+      showStatusMessage(statusDiv, `Clientes cargados: ${data.length}`, 'success');
 
-      data.forEach(c => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <div><strong>clientId:</strong>${c.clientId}</div>
-          <div><strong>name:</strong> ${c.name}</div>
-          <div><strong>cardType:</strong> ${c.cardType}</div>
-          <div><strong>status:</strong> ${c.status || 'Registered'}</div>
-          <div><strong>message:</strong> ${c.message || 'Cliente apto para tarjeta ' + c.cardType}</div>
-        `;
+      data.forEach(client => {
+        const card = createClientCard(client);
         clientsDiv.appendChild(card);
       });
     } catch (err) {
-      statusDiv.textContent = 'Error: ' + err.message;
+      showStatusMessage(statusDiv, 'Error: ' + err.message, 'error');
     }
   }
 
-  async function seed() {
-    statusDiv.textContent = 'Reseteando datos...';
+  async function fetchPurchases() {
+    // Ocultar el contenido principal y mostrar solo el historial de compras
+    hideAllSections();
+    purchasesSection.style.display = 'block';
+    
+    showStatusMessage(purchasesStatusDiv, 'Cargando compras...', 'info');
+    purchasesDiv.innerHTML = '';
     try {
-      const res = await fetch('/seed');
+      const res = await fetch('/purchases');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      statusDiv.textContent = `Seed aplicado: ${json.seededCount} clientes`;
-      fetchClients();
+      const data = await res.json();
+
+      // Handle both old format (array) and new format (object with status and purchases)
+      const purchases = Array.isArray(data) ? data : (data.purchases || []);
+      const status = Array.isArray(data) ? 'success' : data.status;
+
+      if (!Array.isArray(purchases)) {
+        showStatusMessage(purchasesStatusDiv, 'Respuesta inesperada', 'error');
+        return;
+      }
+
+      // Mostrar mensaje si no hay compras
+      if (purchases.length === 0) {
+        showStatusMessage(purchasesStatusDiv, '', 'info'); // Limpiar mensaje de estado
+        const noPurchasesMessage = document.createElement('div');
+        noPurchasesMessage.className = 'no-purchases-message';
+        noPurchasesMessage.textContent = 'No se han realizado compras';
+        purchasesDiv.appendChild(noPurchasesMessage);
+        return;
+      }
+
+      showStatusMessage(purchasesStatusDiv, `Compras cargadas: ${purchases.length}`, 'success');
+
+      purchases.forEach(purchase => {
+        const card = createPurchaseCard(purchase);
+        purchasesDiv.appendChild(card);
+      });
     } catch (err) {
-      statusDiv.textContent = 'Error: ' + err.message;
+      showStatusMessage(purchasesStatusDiv, 'Error: ' + err.message, 'error');
+    }
+  }
+
+  // Función para ocultar todas las secciones
+  function hideAllSections() {
+    mainContent.style.display = 'none';
+    purchasesSection.style.display = 'none';
+    createClientSection.style.display = 'none';
+  }
+
+  // Función para mostrar el contenido principal (clientes y formulario)
+  function showMainContent() {
+    hideAllSections();
+    mainContent.style.display = 'flex';
+  }
+
+  // Función para mostrar el formulario de creación de clientes
+  function showCreateClientForm() {
+    hideAllSections();
+    createClientSection.style.display = 'block';
+  }
+
+  async function createClient(event) {
+    event.preventDefault();
+
+    // Obtener valores del formulario
+    const name = document.getElementById('clientName').value;
+    const country = document.getElementById('clientCountry').value;
+    const monthlyIncome = parseFloat(document.getElementById('clientMonthlyIncome').value);
+    const viseClub = document.getElementById('clientViseClub').value === 'true';
+    const cardType = document.getElementById('clientCardType').value;
+
+    // Validación básica
+    if (!name || !country || isNaN(monthlyIncome)) {
+      showStatusMessage(createClientStatusDiv, 'Por favor, complete todos los campos', 'error');
+      return;
+    }
+
+    // Crear objeto cliente con la estructura correcta
+    const clientData = {
+      name: name,
+      country: country,
+      monthlyIncome: monthlyIncome,
+      viseClub: viseClub,
+      cardType: cardType
+    };
+
+    showStatusMessage(createClientStatusDiv, 'Creando cliente...', 'info');
+
+    try {
+      const res = await fetch('/client', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(clientData)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showStatusMessage(createClientStatusDiv, `Cliente creado exitosamente: ${data.name || data.data.name}`, 'success');
+        // Limpiar el formulario
+        createClientForm.reset();
+        // Volver a mostrar el contenido principal y actualizar la lista de clientes
+        setTimeout(() => {
+          showMainContent();
+          fetchClients();
+        }, 2000);
+      } else {
+        showStatusMessage(createClientStatusDiv, `Error: ${data.error}`, 'error');
+      }
+    } catch (err) {
+      showStatusMessage(createClientStatusDiv, 'Error: ' + err.message, 'error');
     }
   }
 
   async function makePurchase(event) {
     event.preventDefault();
 
+    // Validación básica del formulario
     const clientId = parseInt(document.getElementById('clientId').value, 10);
-    const amount = document.getElementById('amount').value;
+    const amount = parseFloat(document.getElementById('amount').value);
     const currency = document.getElementById('currency').value;
     const purchaseDate = document.getElementById('purchaseDate').value;
     const purchaseCountry = document.getElementById('purchaseCountry').value;
 
-    purchaseStatusDiv.textContent = 'Procesando compra...';
+    if (!clientId || !amount || !currency || !purchaseDate || !purchaseCountry) {
+      showStatusMessage(purchaseStatusDiv, 'Por favor, complete todos los campos', 'error');
+      return;
+    }
+
+    if (amount <= 0) {
+      showStatusMessage(purchaseStatusDiv, 'El monto debe ser mayor que cero', 'error');
+      return;
+    }
+
+    showStatusMessage(purchaseStatusDiv, 'Procesando compra...', 'info');
 
     try {
       const res = await fetch('/purchase', {
@@ -85,96 +234,29 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log("Respuesta del servidor:", data);
 
       if (res.ok) {
-        purchaseStatusDiv.textContent = `Compra aprobada: ${data.purchase.benefit}`;
+        showStatusMessage(purchaseStatusDiv, `Compra aprobada: ${data.purchase.benefit}`, 'success');
+        // Limpiar el formulario después de una compra exitosa
+        purchaseForm.reset();
+        document.getElementById('purchaseDate').value = today;
       } else {
-        purchaseStatusDiv.textContent = `Compra rechazada: ${data.error}`;
+        showStatusMessage(purchaseStatusDiv, `Compra rechazada: ${data.error}`, 'error');
       }
     } catch (err) {
-      purchaseStatusDiv.textContent = 'Error: ' + err.message;
+      showStatusMessage(purchaseStatusDiv, 'Error: ' + err.message, 'error');
     }
   }
 
-
-  async function fetchPurchases() {
-    purchasesStatusDiv.textContent = 'Cargando compras...';
-    purchasesDiv.innerHTML = '';
-    try {
-      const res = await fetch('/purchases');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-
-      // Handle both old format (array) and new format (object with status and purchases)
-      const purchases = Array.isArray(data) ? data : (data.purchases || []);
-      const status = Array.isArray(data) ? 'success' : data.status;
-
-      if (!Array.isArray(purchases)) {
-        purchasesStatusDiv.textContent = 'Respuesta inesperada';
-        return;
-      }
-
-      purchasesStatusDiv.textContent = `Compras cargadas: ${purchases.length}`;
-
-      purchases.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <div><strong>purchaseId:</strong> ${p.purchaseId || p._id || ''}</div>
-          <div><strong>clientId:</strong> ${p.clientId}</div>
-          <div><strong>originalAmount:</strong> ${p.originalAmount}</div>
-          <div><strong>discountApplied:</strong> ${p.discountApplied}</div>
-          <div><strong>finalAmount:</strong> ${p.finalAmount}</div>
-          <div><strong>currency:</strong> ${p.currency || ''}</div>
-          <div><strong>benefit:</strong> ${p.benefit || ''}</div>
-        `;
-        purchasesDiv.appendChild(card);
-      });
-    } catch (err) {
-      purchasesStatusDiv.textContent = 'Error: ' + err.message;
-    }
-  }
-
-  async function fetchPurchasesByClient() {
-    const raw = searchClientIdInput.value.trim();
-    if (!raw) {
-      purchasesStatusDiv.textContent = 'Ingrese un ID de cliente';
-      return;
-    }
-    const clientId = raw;
-    purchasesStatusDiv.textContent = 'Cargando compras del cliente...';
-    purchasesDiv.innerHTML = '';
-    try {
-      const res = await fetch(`/purchases/client/${encodeURIComponent(clientId)}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-
-      // Handle both old format (array) and new format (object with status and purchases)
-      const purchases = Array.isArray(data) ? data : (data.purchases || []);
-      const status = Array.isArray(data) ? 'success' : data.status;
-
-      purchasesStatusDiv.textContent = `Compras cargadas: ${purchases.length}`;
-
-      purchases.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <div><strong>clientId:</strong> ${p.clientId}</div>
-          <div><strong>originalAmount:</strong> ${p.originalAmount}</div>
-          <div><strong>discountApplied:</strong> ${p.discountApplied}</div>
-          <div><strong>finalAmount:</strong> ${p.finalAmount}</div>
-          <div><strong>currency:</strong> ${p.currency || ''}</div>
-          <div><strong>benefit:</strong> ${p.benefit || ''}</div>
-        `;
-        purchasesDiv.appendChild(card);
-      });
-    } catch (err) {
-      purchasesStatusDiv.textContent = 'Error: ' + err.message;
-    }
-  }
-
-  btnLoad.addEventListener('click', fetchClients);
-  btnSeed.addEventListener('click', seed);
+  // Agregar eventos
+  btnLoad.addEventListener('click', function() {
+    showMainContent();
+    fetchClients();
+  });
+  
   purchaseForm.addEventListener('submit', makePurchase);
   btnLoadPurchases.addEventListener('click', fetchPurchases);
-  btnSearchPurchases.addEventListener('click', fetchPurchasesByClient);
+  btnShowCreateClient.addEventListener('click', showCreateClientForm);
+  createClientForm.addEventListener('submit', createClient);
+  
+  // Cargar clientes automáticamente al iniciar la página
+  fetchClients();
 });
-
