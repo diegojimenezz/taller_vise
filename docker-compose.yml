@@ -6,11 +6,22 @@ services:
       - "443:443"
     environment:
       - NODE_ENV=production
+      - PORT=443
       - MONGODB_URI=mongodb://mongo:27017/vise
+      # Variables para Axiom/OpenTelemetry
+      - AXIOM_API_TOKEN=${AXIOM_API_TOKEN}
+      - AXIOM_DATASET_NAME=${AXIOM_DATASET_NAME}
+      - AXIOM_DOMAIN=${AXIOM_DOMAIN}
     restart: unless-stopped
     depends_on:
       mongo:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:443/_debug"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   app-dev:
     build:
@@ -21,10 +32,15 @@ services:
       - ./:/app:rw
       - /app/node_modules
     ports:
-      - "444:443"
+      - "3000:443"
     environment:
       - NODE_ENV=development
+      - PORT=443
       - MONGODB_URI=mongodb://mongo:27017/vise
+      # Variables para Axiom/OpenTelemetry
+      - AXIOM_API_TOKEN=${AXIOM_API_TOKEN}
+      - AXIOM_DATASET_NAME=${AXIOM_DATASET_NAME}
+      - AXIOM_DOMAIN=${AXIOM_DOMAIN}
     tty: true
     stdin_open: true
     depends_on:
